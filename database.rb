@@ -13,9 +13,26 @@ class Person
   end
 end
 
+def read
+  CSV.foreach("employees.csv", { headers: true, header_converters: :symbol }) do |employee|
+    person = Person.new
+
+    person.name     = employee[:name]
+    person.phone    = employee[:phone]
+    person.address  = employee[:address]
+    person.position = employee[:position]
+    person.salary   = employee[:salary]
+    person.slack    = employee[:slack]
+    person.github   = employee[:github]
+
+    @database << person
+  end
+end
+
 class Functions
   def initialize
     @database = []
+    read
   end
 
   def home
@@ -82,6 +99,7 @@ class Functions
     puts "Thanks so much!  #{person.name} is now added."
 
     @database << person
+    write
   end
 
   def search
@@ -110,11 +128,21 @@ class Functions
         if person.name == delete_name
           puts "#{person.name} & all their info. has been deleted."
           @database.delete(person)
+          write
           return
         end
       end
 
       puts "Looks like you're 1 step ahead of us! #{delete_name} isn't in our database."
+    end
+  end
+
+  def write
+    CSV.open("employees.csv", "w") do |csv|
+      csv << ["Name", "Phone", "Address", "Position", "Salary", "Slack", "Github"]
+      @database.each do |person|
+        csv << [person.name, person.phone, person.address, person.position, person.salary, person.slack, person.github]
+      end
     end
   end
 end
