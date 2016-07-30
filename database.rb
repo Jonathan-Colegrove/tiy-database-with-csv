@@ -65,18 +65,31 @@ class Functions
     person = Person.new
 
     puts "Please enter person's name"
-    person.name = gets.chomp!
+    name = gets.chomp!
 
-    if person.name.empty?
+    if name.empty?
       puts "Sorry, User cannot be created without a name."
       return
     end
 
-    if @database.include?(person.name)
-      puts "Please select something else: User is already listed
-            #{person}"
+    matching_people = @database.select { |person| person.name == name }
+      if matching_people.any?
+        puts "#{name} is already in the database.\n#{person}"
+        matching_people.each do |person|
+        puts "-- taken by #{person.name}"
+      end
       return
     end
+
+    person.name = name
+
+    # for person in @database
+    #   if @database.include?(person.name)
+    #     puts "Please select something else: User is already listed
+    #           #{person}"
+    #   end
+    #   return
+    # end
 
     puts "Please enter person's phone #"
     person.phone = gets.chomp!
@@ -103,18 +116,26 @@ class Functions
   end
 
   def search
+    read
     puts "Sure!  What's the person's name?"
-    search_name = gets.chomp!
+    name = gets.chomp!
 
-    for person in @database
-      if person.name == search_name
-        puts "User is listed:\n#{person}"
-        return
-      end
+    searching = @database.any? { |person| person.name.include?(name) }
+    if searching.empty?
+      puts "Did you mean #{name}?"
+      return
     end
 
-    puts "Sorry, #{search_name} isn't in our database.
-          Have them add their details to become searchable."
+    puts "User is listed:\n#{person}"
+
+    # for person in @database
+    #   if person.name == search_name
+    #     puts "User is listed:\n#{person}"
+    #     return
+    #   end
+    # end
+    # puts "Sorry, #{search_name} isn't in our database.
+    #       Have them add their details to become searchable."
   end
 
   def delete
