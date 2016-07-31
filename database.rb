@@ -14,7 +14,6 @@ class Person
 end
 
 class Functions
-
   def initialize
     @database = []
     read
@@ -42,7 +41,7 @@ class Functions
             A = Add a person
             S = Search for a person
             D = Delete a person
-
+            R = Get a Report
             L = leave"
       action = gets.chomp!
 
@@ -53,6 +52,8 @@ class Functions
           search
         when "D"
           delete
+        when "R"
+          report
         when "L"
           puts "Have a great day!"
           return
@@ -146,9 +147,48 @@ class Functions
     end
   end
 
+  def report
+    positions = []
+    @database.each do |person|
+      unless positions.include?(person.position)
+        positions << person.position
+      end
+    end
+
+    positions.each do |position|
+      salaries = []
+      names = []
+      @database.each do |person|
+        if person.position == position
+          salaries << person.salary.to_i
+          names << person.name
+        end
+      end
+
+      salaries.sort!
+
+      sum = 0
+      salaries.each do |i|
+        sum += i
+      end
+      average = sum / salaries.size
+
+      print "The employees working as #{position}s are: "
+
+      names.each do |name|
+        print name + " "
+      end
+
+      puts "\nThe # of employees that are #{position}s are: #{salaries.count}"
+      puts "The minimum salary for #{position} is: $#{salaries[0]}"
+      puts "The maximum salary for #{position} is: $#{salaries[-1]}"
+      puts "The average salary for #{position} is: $#{average}"
+    end
+  end
+
   def write
     CSV.open("employees.csv", "w") do |csv|
-      csv << ["Name", "Phone", "Address", "Position", "Salary", "Slack", "Github"]
+      csv << %w{Name Phone Address Position Salary Slack Github}
       @database.each do |person|
         csv << [person.name, person.phone, person.address, person.position, person.salary, person.slack, person.github]
       end
