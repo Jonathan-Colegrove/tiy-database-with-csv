@@ -13,26 +13,27 @@ class Person
   end
 end
 
-def read
-  CSV.foreach("employees.csv", { headers: true, header_converters: :symbol }) do |employee|
-    person = Person.new
-
-    person.name     = employee[:name]
-    person.phone    = employee[:phone]
-    person.address  = employee[:address]
-    person.position = employee[:position]
-    person.salary   = employee[:salary]
-    person.slack    = employee[:slack]
-    person.github   = employee[:github]
-
-    @database << person
-  end
-end
-
 class Functions
+
   def initialize
     @database = []
     read
+  end
+
+  def read
+    CSV.foreach("employees.csv", { headers: true, header_converters: :symbol }) do |employee|
+      person = Person.new
+
+      person.name     = employee[:name]
+      person.phone    = employee[:phone]
+      person.address  = employee[:address]
+      person.position = employee[:position]
+      person.salary   = employee[:salary]
+      person.slack    = employee[:slack]
+      person.github   = employee[:github]
+
+      @database << person
+    end
   end
 
   def home
@@ -73,23 +74,16 @@ class Functions
     end
 
     matching_people = @database.select { |person| person.name == name }
-      if matching_people.any?
-        puts "#{name} is already in the database.\n#{person}"
-        matching_people.each do |person|
-        puts "-- taken by #{person.name}"
+    if matching_people.any?
+      puts "#{name} is already in the database.\n#{person}"
+      matching_people.each do |person|
+        puts "Please select something else: User is already listed
+                   #{person}"
+        return
       end
-      return
     end
 
     person.name = name
-
-    # for person in @database
-    #   if @database.include?(person.name)
-    #     puts "Please select something else: User is already listed
-    #           #{person}"
-    #   end
-    #   return
-    # end
 
     puts "Please enter person's phone #"
     person.phone = gets.chomp!
@@ -116,26 +110,20 @@ class Functions
   end
 
   def search
-    read
-    puts "Sure!  What's the person's name?"
+    puts "Sure!  What's the person's name, slack, or github ID?"
     name = gets.chomp!
 
-    searching = @database.any? { |person| person.name.include?(name) }
+    searching = @database.select { |person| person.name.include?(name) || person.slack == name || person.github == name }
+
     if searching.empty?
-      puts "Did you mean #{name}?"
+      puts "Sorry, #{name} isn't in our database.
+            Have them add their details to become searchable."
       return
+    else
+      searching.each do |person|
+        puts "User is listed:\n#{person}"
+      end
     end
-
-    puts "User is listed:\n#{person}"
-
-    # for person in @database
-    #   if person.name == search_name
-    #     puts "User is listed:\n#{person}"
-    #     return
-    #   end
-    # end
-    # puts "Sorry, #{search_name} isn't in our database.
-    #       Have them add their details to become searchable."
   end
 
   def delete
